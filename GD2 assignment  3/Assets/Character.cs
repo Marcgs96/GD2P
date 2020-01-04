@@ -16,16 +16,45 @@ public class Character : MonoBehaviour
     public uint total_health, health, melee_attack, ranged_attack, melee_defense, ranged_defense, speed;
     bool defending;
 
-    private void Start()
+    public void Init()
     {
         health = total_health;
+        all_actions = new List<BattleAction>();
+        possible_actions = new List<BattleAction>();
+        objects_available = new List<BattleObject>();
+
+        CreateAllActions();
+        CreateAllObjects();
+    }
+
+    public void CreateAllActions()
+    {
+        Debug.Log("Create Actions");
+        all_actions.Clear();
+
+        all_actions.Add(new Attack());
+        all_actions.Add(new Defend());
+        //all_actions.Add(new UseObject());
+    }
+    public void CreateAllObjects()
+    {
+
+    }
+
+    public void SetPossibleAction()
+    {
+        possible_actions.Clear();
+
+        possible_actions.Add(new Attack());
+        possible_actions.Add(new Defend());  
     }
 
     public void ChooseAction(List<Character> possible_targets)
     {
+        SetPossibleAction();
         selected_action = possible_actions[Random.Range(0, possible_actions.Count)];
         ChooseTarget(possible_targets);
-        ChooseObject();
+        //ChooseObject();
     }
 
     public void ChooseTarget(List<Character> possible_targets)

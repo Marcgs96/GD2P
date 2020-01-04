@@ -2,16 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Battle : MonoBehaviour
+public class Battle
 {
     public List<Character> battle_characters;
     Turn current_turn;
     bool auto = true, victory = true, finished;
 
-    public Battle(bool auto, List<Character> chars) { this.auto = auto; battle_characters = chars; }
+    public Battle(bool auto, List<Character> chars) {
+        this.auto = auto;
+        battle_characters = chars;
 
-    public void StartBattle() {
-
+        foreach(Character charac in battle_characters)
+        {
+            charac.Init();
+        }
     }
     public bool UpdateBattle() {
         if (!auto)
@@ -57,5 +61,13 @@ public class Battle : MonoBehaviour
     }
     public bool IsVictory() {
         return victory;
+    }
+
+    public void ResetBattle()
+    {
+        foreach (Character charac in battle_characters)
+        {
+            charac.Init();
+        }
     }
 }

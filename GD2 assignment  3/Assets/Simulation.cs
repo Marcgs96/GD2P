@@ -5,33 +5,39 @@ using UnityEngine;
 public class Simulation : MonoBehaviour
 {
     public uint num_battles = 100;
-    List<Battle> battles;
+    public uint battles_completed = 0;
+    Battle battle;
     public List<Character> characters;
     public bool auto;
-    uint victories, loses;
+    public uint victories, loses;
+
+    public bool finished = false;
+
     // Start is called before the first frame update
     void Start()
     {
-        battles = new List<Battle>();
-        for (int i = 0; i < num_battles; i++)
-        {
-            battles.Add(new Battle(auto, characters));
-        }
+        battle = new Battle(auto, characters);
     }
 
     // Update is called once per frame
     void Update()
     {
-        foreach (Battle b in battles)
+        if(!finished)
         {
-            if (b.UpdateBattle())
+            if (battle.UpdateBattle())
             {
-                if (b.IsVictory())
+                if (battle.IsVictory())
                     victories++;
                 else loses++;
 
-                battles.Remove(b);
+
+                battle.ResetBattle();
+                battles_completed++;
             }
         }
+
+
+        if (battles_completed == num_battles)
+            finished = true;
     }
 }
