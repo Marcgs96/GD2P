@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,17 +9,36 @@ public class Character : MonoBehaviour
     List<BattleAction> possible_actions;
     public List<BattleObject> objects_available;
     public bool friendly = false;
+    public int level;
 
     Character target;
     public BattleObject selected_object;
     public BattleAction selected_action;
 
-    public uint total_health, health, melee_attack, ranged_attack, melee_defense, ranged_defense, speed;
-    bool defending;
+    [Serializable]
+    public struct Weapon
+    {
+        public bool melee;
+        public int power;
+        public int level;
+    }
+    public Weapon weapon;
+
+    public int base_health, base_melee_attack, base_ranged_attack, base_melee_defense, base_ranged_defense, base_speed;
+    public int health, melee_attack, ranged_attack, melee_defense, ranged_defense, speed;
+    public int health_scaling, speed_scaling, ranged_scaling, melee_scaling, melee_defense_scaling, ranged_defense_scaling;
+    public bool defending = false, dead = false;
 
     public void Init()
     {
-        health = total_health;
+        health = base_health + (health_scaling * level);
+        speed = base_speed + (speed_scaling * level);
+        melee_attack = base_melee_attack + (melee_scaling * level);
+        ranged_attack = base_ranged_attack + (ranged_scaling * level);
+        melee_defense = base_melee_defense + (melee_defense_scaling * level);
+        ranged_defense = base_ranged_defense + (ranged_defense_scaling * level);
+
+        dead = false;
         all_actions = new List<BattleAction>();
         possible_actions = new List<BattleAction>();
         objects_available = new List<BattleObject>();
@@ -29,7 +49,6 @@ public class Character : MonoBehaviour
 
     public void CreateAllActions()
     {
-        Debug.Log("Create Actions");
         all_actions.Clear();
 
         all_actions.Add(new Attack());
@@ -43,6 +62,7 @@ public class Character : MonoBehaviour
 
     public void SetPossibleAction()
     {
+        defending = false;
         possible_actions.Clear();
 
         possible_actions.Add(new Attack());
@@ -52,7 +72,7 @@ public class Character : MonoBehaviour
     public void ChooseAction(List<Character> possible_targets)
     {
         SetPossibleAction();
-        selected_action = possible_actions[Random.Range(0, possible_actions.Count)];
+        selected_action = possible_actions[UnityEngine.Random.Range(0, possible_actions.Count)];
         ChooseTarget(possible_targets);
         //ChooseObject();
     }
@@ -63,7 +83,7 @@ public class Character : MonoBehaviour
         if (friendly)
         {
             while (!target) {
-                int random = Random.Range(0, possible_targets.Count);
+                int random = UnityEngine.Random.Range(0, possible_targets.Count);
                 if (!possible_targets[random].friendly)
                     target = possible_targets[random];
             }
@@ -71,7 +91,7 @@ public class Character : MonoBehaviour
         {
             while (!target)
             {
-                int random = Random.Range(0, possible_targets.Count);
+                int random = UnityEngine.Random.Range(0, possible_targets.Count);
                 if (possible_targets[random].friendly)
                     target = possible_targets[random];
             }
@@ -80,14 +100,25 @@ public class Character : MonoBehaviour
     
     public void ChooseObject()
     {
-        selected_object = objects_available[Random.Range(0, objects_available.Count)];
+        selected_object = objects_available[UnityEngine.Random.Range(0, objects_available.Count)];
     }
 
     void FillActions() { }
     void FillPosibleActions() { }
-    public void AddHealthPoints(uint amount) { health += amount; }
-    public void RemoveHealthPoints(uint amount) { health -= amount; }
-    public void SetDefense(bool def) { defending = def; }
-    public void SetTarget(Character target) { this.target = target; }
-    public Character GetTarget() { return target; }
+    public void AddHealthPoints(int amount) { health += amount; }
+    public void RemoveHealthPoints(int amount) {
+        health -= amount;
+        if (health <= 0)
+            dead = true;
+
+    }
+    public void SetDefense(bool def) {
+        defending = def;
+    }
+    public void SetTarget(Character target) {
+        this.target = target;
+    }
+    public Character GetTarget() {
+        return target;
+    }
 }

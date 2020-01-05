@@ -4,12 +4,12 @@ using UnityEngine;
 
 public class Simulation : MonoBehaviour
 {
-    public uint num_battles = 100;
-    public uint battles_completed = 0;
+    public int num_battles = 100;
+    public int battles_completed = 0;
     Battle battle;
     public List<Character> characters;
     public bool auto;
-    public uint victories, loses;
+    public int victories, loses;
 
     public bool finished = false;
 
