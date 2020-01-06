@@ -45,28 +45,33 @@ public class Turn
     }
     public void DoTurn()
     {
-        Debug.Log("auto?" + Simulation.instance.auto);
         if(Simulation.instance.auto)
         {
             for (int i = 0; i < characters.Count; i++)
             {
-                if (!characters[i].dead)
-                    characters[i].ChooseAction(characters);
+                characters[i].ChooseAction(characters);
             }
         }
         else
         {
-            Debug.Log("current char " + current_character);
             if (current_character < characters.Count)
             {
-                if (!characters[current_character].friendly)
+                if (characters[current_character].dead)
                 {
                     characters[current_character].ChooseAction(characters);
                     current_character++;
                 }
                 else
                 {
-                    Simulation.instance.char_text.text = characters[current_character].name;
+                    if (!characters[current_character].friendly)
+                    {
+                        characters[current_character].ChooseAction(characters);
+                        current_character++;
+                    }
+                    else
+                    {
+                        Simulation.instance.char_text.text = characters[current_character].name;
+                    }
                 }
             }
 
@@ -96,7 +101,10 @@ public class Turn
 
     public void SelectAction(int action)
     {
-        characters[current_character].SelectAction(action, characters);
-        current_character++;
+        if (current_character < characters.Count)
+        {
+            characters[current_character].SelectAction(action, characters);
+            current_character++;
+        }
     }
 }

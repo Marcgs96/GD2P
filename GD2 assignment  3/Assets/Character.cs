@@ -11,11 +11,13 @@ public class Character : MonoBehaviour
     public List<BattleObject> objects_available;
     public bool friendly = false;
     public int level;
+    public int charge_level = 1;
 
     Character target;
     public BattleObject selected_object;
     public BattleAction selected_action;
     public Slider hp_bar;
+    public Slider energy_bar;
 
     [Serializable]
     public struct Weapon
@@ -27,7 +29,7 @@ public class Character : MonoBehaviour
     public Weapon weapon;
 
     public int base_health, base_melee_attack, base_ranged_attack, base_melee_defense, base_ranged_defense, base_speed;
-    public int health, melee_attack, ranged_attack, melee_defense, ranged_defense, speed, max_health;
+    public int health, melee_attack, ranged_attack, melee_defense, ranged_defense, speed, max_health, energy, max_energy, energy_generation;
     public int health_scaling, speed_scaling, ranged_scaling, melee_scaling, melee_defense_scaling, ranged_defense_scaling;
     public bool defending = false, dead = false;
 
@@ -40,6 +42,8 @@ public class Character : MonoBehaviour
         ranged_attack = base_ranged_attack + (ranged_scaling * (level - 1));
         melee_defense = base_melee_defense + (melee_defense_scaling * (level - 1));
         ranged_defense = base_ranged_defense + (ranged_defense_scaling * (level - 1));
+        energy = 0;
+        charge_level = 1;
 
         dead = false;
         all_actions = new List<BattleAction>();
@@ -47,6 +51,7 @@ public class Character : MonoBehaviour
         objects_available = new List<BattleObject>();
 
         hp_bar.value = (float)health / (float)max_health;
+        energy_bar.value = (float)energy / (float)max_energy;
 
         CreateAllActions();
         CreateAllObjects();
@@ -58,6 +63,7 @@ public class Character : MonoBehaviour
 
         all_actions.Add(new Attack());
         all_actions.Add(new Defend());
+        all_actions.Add(new Special());
         //all_actions.Add(new UseObject());
     }
     public void CreateAllObjects()
@@ -71,7 +77,9 @@ public class Character : MonoBehaviour
         possible_actions.Clear();
 
         possible_actions.Add(new Attack());
-        possible_actions.Add(new Defend());  
+        possible_actions.Add(new Defend());
+        if(energy == max_energy)
+            possible_actions.Add(new Special());
     }
 
     public void ChooseAction(List<Character> possible_targets)
@@ -136,5 +144,28 @@ public class Character : MonoBehaviour
     {
         selected_action = all_actions[action];
         ChooseTarget(possible_targets);
+    }
+
+    public void GenerateEnergy(bool attack)
+    {
+        if(attack)
+        {
+            energy += energy_generation;
+        }
+        else
+        {
+            energy += (int)((float)energy_generation*0.5f);
+        }
+
+        if (energy > max_energy)
+            energy = max_energy;
+
+        energy_bar.value = (float)energy / (float)max_energy;
+    }
+
+    public void ResetEnergy()
+    {
+        energy = 0;
+        energy_bar.value = (float)energy / (float)max_energy;
     }
 }
