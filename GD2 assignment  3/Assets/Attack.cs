@@ -25,6 +25,7 @@ public class Attack : BattleAction
 
         if (active_character.charge_level > 1)
         {
+            Debug.Log("CHARGED ATTACK FOR " + total_power);
             total_power *= active_character.charge_level;
             active_character.ResetEnergy();
             active_character.charge_level = 1;
@@ -34,7 +35,7 @@ public class Attack : BattleAction
         total_power = total_power * 0.5f;
 
 
-        Debug.Log("CALCULATED POWER IS " + (int)total_power);
+        Debug.Log(active_character.name+" DEALS " + (int)total_power + " DAMAGE");
 
         active_character.GetTarget().RemoveHealthPoints((int)total_power);
     }

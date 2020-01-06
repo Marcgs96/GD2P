@@ -11,7 +11,10 @@ public class Character : MonoBehaviour
     public List<BattleObject> objects_available;
     public bool friendly = false;
     public int level;
+
     public int charge_level = 1;
+    public enum TYPE { JET, MIRA, JOHN, MINION, BOSS};
+    public TYPE char_type;
 
     Character target;
     public BattleObject selected_object;
@@ -63,7 +66,20 @@ public class Character : MonoBehaviour
 
         all_actions.Add(new Attack());
         all_actions.Add(new Defend());
-        all_actions.Add(new Special());
+
+        switch (char_type)
+        {
+            case TYPE.JET:
+                all_actions.Add(new JetSpecial());
+                break;
+            case TYPE.MIRA:
+                all_actions.Add(new MiraSpecial());
+                break;
+            case TYPE.JOHN:
+                all_actions.Add(new JohnSpecial());
+                break;
+
+        }
         //all_actions.Add(new UseObject());
     }
     public void CreateAllObjects()
@@ -79,20 +95,36 @@ public class Character : MonoBehaviour
         possible_actions.Add(new Attack());
         possible_actions.Add(new Defend());
         if(energy == max_energy)
-            possible_actions.Add(new Special());
+        {
+            switch (char_type)
+            {
+                case TYPE.JET:
+                    all_actions.Add(new JetSpecial());
+                    break;
+                case TYPE.MIRA:
+                    all_actions.Add(new MiraSpecial());
+                    break;
+                case TYPE.JOHN:
+                    all_actions.Add(new JohnSpecial());
+                    break;
+
+            }
+        }
     }
 
     public void ChooseAction(List<Character> possible_targets)
     {
         SetPossibleAction();
         selected_action = possible_actions[UnityEngine.Random.Range(0, possible_actions.Count)];
-        ChooseTarget(possible_targets);
+        if(selected_action is JohnSpecial)
+            ChooseFriendlyTarget(possible_targets);
+        else
+            ChooseTarget(possible_targets);
         //ChooseObject();
     }
 
     public void ChooseTarget(List<Character> possible_targets)
     {
-
         target = null;
         if (friendly)
         {
@@ -101,7 +133,8 @@ public class Character : MonoBehaviour
                 if (!possible_targets[random].friendly && !possible_targets[random].dead)
                     target = possible_targets[random];
             }
-        }else
+        }
+        else
         {
             while (!target)
             {
@@ -111,7 +144,26 @@ public class Character : MonoBehaviour
             }
         }
     }
-    
+
+    public void ChooseFriendlyTarget(List<Character> possible_targets)
+    {
+        target = null;
+        foreach(Character character in possible_targets)
+        {
+            if(character.friendly && !character.dead)
+            {
+                if (!target)
+                    target = character;
+                else
+                {
+                    if (character.health < target.health)
+                        target = character;
+                }
+            }
+        }
+    }
+
+
     public void ChooseObject()
     {
         selected_object = objects_available[UnityEngine.Random.Range(0, objects_available.Count)];
@@ -119,7 +171,13 @@ public class Character : MonoBehaviour
 
     void FillActions() { }
     void FillPosibleActions() { }
-    public void AddHealthPoints(int amount) { health += amount; }
+    public void AddHealthPoints(int amount) {
+        health += amount;
+        if (health > max_health)
+            health = max_health;
+
+        hp_bar.value = (float)health / (float)max_health;
+    }
     public void RemoveHealthPoints(int amount) {
         health -= amount;
         if (health <= 0)
@@ -143,7 +201,10 @@ public class Character : MonoBehaviour
     public void SelectAction(int action, List<Character> possible_targets)
     {
         selected_action = all_actions[action];
-        ChooseTarget(possible_targets);
+
+        if (action == 2 && char_type == TYPE.JOHN)
+            ChooseFriendlyTarget(possible_targets);
+        else ChooseTarget(possible_targets);
     }
 
     public void GenerateEnergy(bool attack)
