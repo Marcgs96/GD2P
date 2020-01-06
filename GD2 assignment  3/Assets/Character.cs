@@ -31,12 +31,12 @@ public class Character : MonoBehaviour
 
     public void Init()
     {
-        health = base_health + (health_scaling * level);
-        speed = base_speed + (speed_scaling * level);
-        melee_attack = base_melee_attack + (melee_scaling * level);
-        ranged_attack = base_ranged_attack + (ranged_scaling * level);
-        melee_defense = base_melee_defense + (melee_defense_scaling * level);
-        ranged_defense = base_ranged_defense + (ranged_defense_scaling * level);
+        health = base_health + (health_scaling * (level - 1));
+        speed = base_speed + (speed_scaling * (level - 1));
+        melee_attack = base_melee_attack + (melee_scaling * (level - 1));
+        ranged_attack = base_ranged_attack + (ranged_scaling * (level - 1));
+        melee_defense = base_melee_defense + (melee_defense_scaling * (level - 1));
+        ranged_defense = base_ranged_defense + (ranged_defense_scaling * (level - 1));
 
         dead = false;
         all_actions = new List<BattleAction>();
