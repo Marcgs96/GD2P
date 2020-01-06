@@ -90,7 +90,7 @@ public class Character : MonoBehaviour
         {
             while (!target) {
                 int random = UnityEngine.Random.Range(0, possible_targets.Count);
-                if (!possible_targets[random].friendly)
+                if (!possible_targets[random].friendly && !possible_targets[random].dead)
                     target = possible_targets[random];
             }
         }else
@@ -98,7 +98,7 @@ public class Character : MonoBehaviour
             while (!target)
             {
                 int random = UnityEngine.Random.Range(0, possible_targets.Count);
-                if (possible_targets[random].friendly)
+                if (possible_targets[random].friendly && !possible_targets[random].dead)
                     target = possible_targets[random];
             }
         }
