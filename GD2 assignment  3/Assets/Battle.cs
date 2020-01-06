@@ -5,11 +5,10 @@ using UnityEngine;
 public class Battle
 {
     public List<Character> battle_characters;
-    Turn current_turn;
-    bool auto = true, victory = true, finished;
+    Turn current_turn = null;
+    bool victory = true, finished;
 
-    public Battle(bool auto, List<Character> chars) {
-        this.auto = auto;
+    public Battle(List<Character> chars) {
         battle_characters = chars;
 
         foreach(Character charac in battle_characters)
@@ -18,10 +17,24 @@ public class Battle
         }
     }
     public bool UpdateBattle() {
-        if (!auto)
+        if (!Simulation.instance.auto)
         {
             //UpdateCurrentTurn
-        }else
+            if(current_turn == null)
+            {
+                current_turn = new Turn(battle_characters);
+                current_turn.OrderCharacters();
+                current_turn.DoTurn();
+            }
+            else
+            {
+                current_turn.OrderCharacters();
+                current_turn.DoTurn();
+                if (current_turn.finished)
+                    current_turn = null;
+            }
+        }
+        else
         {
             current_turn = new Turn(battle_characters);
             current_turn.OrderCharacters();
@@ -69,5 +82,11 @@ public class Battle
         {
             charac.Init();
         }
+        current_turn = null;
+    }
+
+    public void SelectAction(int action)
+    {
+        current_turn.SelectAction(action);
     }
 }

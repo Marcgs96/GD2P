@@ -26,31 +26,77 @@ public static class Randomlel
 }
 
 
-public class Turn : MonoBehaviour
+public class Turn
 {
     List<Character> characters;
+    int current_character = 0;
+    public bool finished = false;
 
     public Turn(List<Character> characters) {
+        Debug.Log("new turn created");
         this.characters = characters;
+        foreach (Character character in this.characters)
+        {
+            character.selected_action = null;
+        }
     }
     public void OrderCharacters() {
         characters.OrderByDescending(x => x.speed);
     }
     public void DoTurn()
     {
-
-        for (int i = 0; i < characters.Count; i++)
+        Debug.Log("auto?" + Simulation.instance.auto);
+        if(Simulation.instance.auto)
         {
-            if(!characters[i].dead)
-             characters[i].ChooseAction(characters);
+            for (int i = 0; i < characters.Count; i++)
+            {
+                if (!characters[i].dead)
+                    characters[i].ChooseAction(characters);
+            }
         }
+        else
+        {
+            Debug.Log("current char " + current_character);
+            if (current_character < characters.Count)
+            {
+                if (!characters[current_character].friendly)
+                {
+                    characters[current_character].ChooseAction(characters);
+                    current_character++;
+                }
+                else
+                {
+                    Simulation.instance.char_text.text = characters[current_character].name;
+                }
+            }
+
+
+            foreach (Character character in characters)
+            {
+                if (character.selected_action == null)
+                    return;
+            }
+        }
+
+
 
         characters.Shuffle();
         IEnumerable<Character> t2 = characters.OrderBy(x => x.selected_action.priority).ThenByDescending(x => x.speed);
         foreach(Character character in t2)
         {
             if (!character.dead)
+            {
                 character.selected_action.Execute(character);
+                character.selected_action = null;
+            }
         }
+
+        finished = true;
+    }
+
+    public void SelectAction(int action)
+    {
+        characters[current_character].SelectAction(action, characters);
+        current_character++;
     }
 }

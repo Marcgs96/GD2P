@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Character : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public class Character : MonoBehaviour
     Character target;
     public BattleObject selected_object;
     public BattleAction selected_action;
+    public Slider hp_bar;
 
     [Serializable]
     public struct Weapon
@@ -25,13 +27,14 @@ public class Character : MonoBehaviour
     public Weapon weapon;
 
     public int base_health, base_melee_attack, base_ranged_attack, base_melee_defense, base_ranged_defense, base_speed;
-    public int health, melee_attack, ranged_attack, melee_defense, ranged_defense, speed;
+    public int health, melee_attack, ranged_attack, melee_defense, ranged_defense, speed, max_health;
     public int health_scaling, speed_scaling, ranged_scaling, melee_scaling, melee_defense_scaling, ranged_defense_scaling;
     public bool defending = false, dead = false;
 
     public void Init()
     {
         health = base_health + (health_scaling * (level - 1));
+        max_health = health;
         speed = base_speed + (speed_scaling * (level - 1));
         melee_attack = base_melee_attack + (melee_scaling * (level - 1));
         ranged_attack = base_ranged_attack + (ranged_scaling * (level - 1));
@@ -42,6 +45,8 @@ public class Character : MonoBehaviour
         all_actions = new List<BattleAction>();
         possible_actions = new List<BattleAction>();
         objects_available = new List<BattleObject>();
+
+        hp_bar.value = (float)health / (float)max_health;
 
         CreateAllActions();
         CreateAllObjects();
@@ -79,6 +84,7 @@ public class Character : MonoBehaviour
 
     public void ChooseTarget(List<Character> possible_targets)
     {
+
         target = null;
         if (friendly)
         {
@@ -109,8 +115,12 @@ public class Character : MonoBehaviour
     public void RemoveHealthPoints(int amount) {
         health -= amount;
         if (health <= 0)
+        {
+            health = 0;
             dead = true;
+        }
 
+        hp_bar.value = (float)health / (float)max_health;
     }
     public void SetDefense(bool def) {
         defending = def;
@@ -120,5 +130,11 @@ public class Character : MonoBehaviour
     }
     public Character GetTarget() {
         return target;
+    }
+
+    public void SelectAction(int action, List<Character> possible_targets)
+    {
+        selected_action = all_actions[action];
+        ChooseTarget(possible_targets);
     }
 }
