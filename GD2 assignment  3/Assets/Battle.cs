@@ -50,7 +50,7 @@ public class Battle
 
         foreach (Character c in battle_characters)
         {
-            if(c.health > 0)
+            if(!c.dead)
             {
                 if (c.friendly)
                     allie_alive = true;

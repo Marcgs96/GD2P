@@ -22,6 +22,8 @@ public class Character : MonoBehaviour
     public Slider hp_bar;
     public Slider energy_bar;
 
+    public int attack_frequency;
+
     [Serializable]
     public struct Weapon
     {
@@ -99,13 +101,13 @@ public class Character : MonoBehaviour
             switch (char_type)
             {
                 case TYPE.JET:
-                    all_actions.Add(new JetSpecial());
+                    possible_actions.Add(new JetSpecial());
                     break;
                 case TYPE.MIRA:
-                    all_actions.Add(new MiraSpecial());
+                    possible_actions.Add(new MiraSpecial());
                     break;
                 case TYPE.JOHN:
-                    all_actions.Add(new JohnSpecial());
+                    possible_actions.Add(new JohnSpecial());
                     break;
 
             }
@@ -115,7 +117,13 @@ public class Character : MonoBehaviour
     public void ChooseAction(List<Character> possible_targets)
     {
         SetPossibleAction();
-        selected_action = possible_actions[UnityEngine.Random.Range(0, possible_actions.Count)];
+
+        int random_number = UnityEngine.Random.Range(0, 100);
+        if (random_number <= attack_frequency)
+            selected_action = possible_actions[0];
+        else
+            selected_action = possible_actions[UnityEngine.Random.Range(1, possible_actions.Count)];
+
         if(selected_action is JohnSpecial)
             ChooseFriendlyTarget(possible_targets);
         else
@@ -147,7 +155,7 @@ public class Character : MonoBehaviour
 
     public void ChooseFriendlyTarget(List<Character> possible_targets)
     {
-        target = null;
+        target = this;
         foreach(Character character in possible_targets)
         {
             if(character.friendly && !character.dead)
